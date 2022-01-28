@@ -1,4 +1,5 @@
-Amazon IAP Support
+
+# Amazon IAP Support
 ------------------
 The guide assumes that `react-native-iap` is implemented in your app and it works with Google Play with no issues.
 Here are the additional steps to add Amazon IAP support.
@@ -18,15 +19,11 @@ Here are the additional steps to add Amazon IAP support.
 
 Testing in development
 ----------------------
-The `react-native-iap` checks the install source of the app and determines the usage of Amazon IAP API based on that.
-The development environment does not set the install source, the default is to use Google Play as a fallback in this case.
-If the fallback needs to be changed to use Amazon Appstore while testing, the following code snippet needed just before calling `RNIap.initConnection` for the first time in the app:
+The `react-native-iap` determines the the appstore depending on the "variant" of the app that you are running. For example to run the Amazon variant use the `variant` flag:
 ```
-if (__DEV__) {
-  RNIap.setFallbackInstallSourceAndroid(RNIap.InstallSourceAndroid.AMAZON);
-}
-RNIap.initConnection(...)
+yarn android --variant=AmazonDebug
 ```
+
 Amazon offers the `App Tester` tool to make in-app purchases testing easier. More information can be found at https://developer.amazon.com/docs/in-app-purchasing/iap-app-tester-user-guide.html
 
 Server Validation
@@ -36,7 +33,7 @@ Amazon IAP API supports validation of in-app purchases on a remote server side. 
 
 Subscriptions
 ----------------------
-When fetching subscriptions from Amazon, make sure to use children SKUs (so SKUs for specific period ex. monthly or annualy), do not use parent subscription SKUs! 
+When fetching subscriptions from Amazon, make sure to use children SKUs (so SKUs for specific period ex. monthly or annually), do not use parent subscription SKUs! 
 
 
 Caveats

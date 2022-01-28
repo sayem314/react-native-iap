@@ -116,20 +116,27 @@ class Page extends Component {
   async componentDidMount(): void {
     try {
       await RNIap.initConnection();
-      await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
+      if (Platform.OS === 'android') {
+        await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
+      } else {
+        await RNIap.clearTransactionIOS();
+      }
     } catch (err) {
       console.warn(err.code, err.message);
     }
 
     purchaseUpdateSubscription = purchaseUpdatedListener(
       async (purchase: InAppPurchase | SubscriptionPurchase) => {
-        console.info("purchase",purchase);
-        const receipt =  purchase.transactionReceipt? purchase.transactionReceipt : purchase.originalJson;
-        console.info(receipt)
+        console.info('purchase', purchase);
+
+        const receipt = purchase.transactionReceipt
+          ? purchase.transactionReceipt
+          : purchase.originalJson;
+        console.info(receipt);
         if (receipt) {
           try {
             const ackResult = await finishTransaction(purchase);
-            console.info("ackResult",ackResult)
+            console.info('ackResult', ackResult);
           } catch (ackErr) {
             console.warn('ackErr', ackErr);
           }
@@ -152,10 +159,12 @@ class Page extends Component {
       purchaseUpdateSubscription.remove();
       purchaseUpdateSubscription = null;
     }
+
     if (purchaseErrorSubscription) {
       purchaseErrorSubscription.remove();
       purchaseErrorSubscription = null;
     }
+
     RNIap.endConnection();
   }
 
@@ -189,6 +198,7 @@ class Page extends Component {
       console.info(
         'Get available purchases (non-consumable or unconsumed consumable)',
       );
+
       const purchases = await RNIap.getAvailablePurchases();
       console.info('Available purchases :: ', purchases);
       if (purchases && purchases.length > 0) {
@@ -236,7 +246,8 @@ class Page extends Component {
               onPress={this.getAvailablePurchases}
               activeOpacity={0.5}
               style={styles.btn}
-              textStyle={styles.txt}>
+              textStyle={styles.txt}
+            >
               Get available purchases
             </NativeButton>
 
@@ -252,7 +263,8 @@ class Page extends Component {
               onPress={(): void => this.getItems()}
               activeOpacity={0.5}
               style={styles.btn}
-              textStyle={styles.txt}>
+              textStyle={styles.txt}
+            >
               Get Products ({productList.length})
             </NativeButton>
             {productList.map((product, i) => {
@@ -261,7 +273,8 @@ class Page extends Component {
                   key={i}
                   style={{
                     flexDirection: 'column',
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       marginTop: 20,
@@ -270,7 +283,8 @@ class Page extends Component {
                       minHeight: 100,
                       alignSelf: 'center',
                       paddingHorizontal: 20,
-                    }}>
+                    }}
+                  >
                     {JSON.stringify(product)}
                   </Text>
                   <NativeButton
@@ -280,7 +294,8 @@ class Page extends Component {
                     }
                     activeOpacity={0.5}
                     style={styles.btn}
-                    textStyle={styles.txt}>
+                    textStyle={styles.txt}
+                  >
                     Request purchase for above product
                   </NativeButton>
                 </View>

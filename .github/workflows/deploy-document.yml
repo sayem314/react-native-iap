@@ -15,12 +15,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@master
         with:
-          node-version: 14.x
+          node-version: 16.x
 
       - name: Install packages and build
         run: |
           pushd ./docs
-          yarn install --ignore-engines
+          yarn
           yarn build
           popd
 
@@ -30,3 +30,4 @@ jobs:
           github_token: ${{ secrets.GH_TOKEN }}
           publish_dir: ./docs/build
           publish_branch: gh-pages
+          cname: react-native-iap.dooboolab.com

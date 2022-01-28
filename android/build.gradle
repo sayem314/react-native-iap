@@ -1,25 +1,29 @@
-
 buildscript {
-  repositories {
+  ext.DEFAULT_KOTLIN_VERSION = '1.5.10'
+  ext.safeExtGet={prop, fallback-> 
+    return rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
+    repositories {
     google()
     mavenCentral()
   }
 
+
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.2.1'
+    classpath 'com.android.tools.build:gradle:4.2.2'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${safeExtGet('kotlinVersion',DEFAULT_KOTLIN_VERSION)}"
   }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
-def safeExtGet(prop, fallback) {
-    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-}
 
 def DEFAULT_COMPILE_SDK_VERSION = 30
 def DEFAULT_BUILD_TOOLS_VERSION = "30.0.2"
 def DEFAULT_MIN_SDK_VERSION = 16
 def DEFAULT_TARGET_SDK_VERSION = 30
+def DEFAULT_PLAY_SERVICES_VERSION = "17.6.0"
 
 android {
   compileSdkVersion safeExtGet("compileSdkVersion", DEFAULT_COMPILE_SDK_VERSION)
@@ -49,13 +53,19 @@ android {
 }
 
 repositories {
+  maven {
+            // All of React Native (JS, Android binaries) is installed from npm
+            url "$rootDir/../node_modules/react-native/android"
+        }
   google()
   mavenCentral()
 }
 
 dependencies {
   implementation 'com.facebook.react:react-native:+'
-  playImplementation 'com.android.billingclient:billing:3.0.3'
+  playImplementation 'com.android.billingclient:billing:4.0.0'
+  def playServicesVersion = safeExtGet('playServicesVersion', DEFAULT_PLAY_SERVICES_VERSION)
+  playImplementation "com.google.android.gms:play-services-base:$playServicesVersion"
   amazonImplementation fileTree(dir: 'libs', include: ['*.jar'])
 
   def supportLibVersion = safeExtGet('supportLibVersion', safeExtGet('supportVersion', null))
@@ -64,7 +74,7 @@ dependencies {
     implementation "com.android.support:support-annotations:$supportLibVersion"
     implementation "com.android.support:customtabs:$supportLibVersion"
   } else {
-    def defaultAndroidXVersion = "1.+"
+    def defaultAndroidXVersion = "1.2.0"
     if (androidXVersion == null) {
       androidXVersion = defaultAndroidXVersion
     }
